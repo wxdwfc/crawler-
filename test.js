@@ -9,9 +9,13 @@ var fs = require('fs');
 var jquery = fs.readFileSync("./jquery.js", "utf-8");
 
 var nodegrass = require("nodegrass");
+var WebSocketServer = require('ws').Server
+  , wss = new WebSocketServer({port: 8080});
 
 var Game = require("./_Game.js").Game;
 var BaseData = require("./BaseData.js").BaseData;
+
+var Start_server = require("./server.js").Start_server;
 
 /**
   * local variables
@@ -31,10 +35,21 @@ var catagory =  [];
 var dataSet  =  {};
 
 
+/**
+  * The starter function.
+  */
 nodegrass.get(target_url,
 	function(data,status,headers) {
 		makeDom(data,root_callback);
+		Start_server();
 
+		wss.on('connection', function(ws) {
+    		ws.on('message', function(message) {
+        		console.log("get something");
+        		ws.send(JSON.stringify(dataSet));
+		   	});
+
+	});
 	} ,"utf-8").on("error",
 	function(e) {
 
@@ -52,6 +67,10 @@ function makeDom(html, callback,params) {
     html: html,
     src: [jquery],
     done: function (errors, window) {
+      if(errors) {
+      	console.log("error: " + errors);
+      	return;
+      }
       var $ = window.$;
 
       callback(errors,window.$,params);
@@ -68,6 +87,7 @@ function makeDom(html, callback,params) {
  */
 function root_callback(errors,$,params) {
 
+
 	var games = $('.tagCont')[0];
 	var ul = games.children[0];
 
@@ -75,7 +95,6 @@ function root_callback(errors,$,params) {
 		var temp = ul.children[i].children[0];
 		catagory.push(new Game(temp.title,temp.href.substr(7)));
 		dataSet[temp.title] = [];
-		break;
 	}
 	//console.log(catagory);
 	startExtract();
@@ -117,7 +136,8 @@ function extractData(errors,$,params,window) {
 		var views = $(content.children[0]).html();
 		var name  = $(content.children[1]).html();
 		var d = new BaseData(title,type,name,convert(views));
-		console.log(d);
+
+		dataSet[type].push(d);
 
 	}
 
@@ -134,5 +154,24 @@ function convert(s){
 	} else {
 		return parseInt(s);
 	}
+}
+
+
+/*
+ * The tick function will be called at a given interval to flush the data.
+ */
+function tick() {
+	nodegrass.get(target_url,
+
+		function(data,status,headers) {
+			makeDom(data,root_callback);
+
+		} ,"utf-8").on("error",
+		function(e) {
+
+			console.log("Err: " + e.message);
+		}
+);
+
 }
 
