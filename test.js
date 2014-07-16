@@ -146,6 +146,12 @@ function extractData(errors,$,params,window) {
 		temp["children"].push({"name":name,"hotness":convert(views),"title":title});
 
 	}
+
+    var links = $(".list");
+	for(var i = 0;i < links.length;++i){
+
+		temp["children"][i].link = base_url + links.get(i).href.substr(7);
+	}
 	dataSet["children"].push(temp);
 
 }
