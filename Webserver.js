@@ -3,9 +3,13 @@ exports.Start_server = Start_server;
 var http = require('http');
 var fs = require('fs');
 
-function Start_server(){
+function Start_server(l_port){
+
+    var port = 8000 | l_port;
     var server = new http.Server();
-    server.listen(8000);
+
+    server.listen(port);
+    console.log("Web server start listin: " + port);
 
     server.on("request",function(request,response){
         
