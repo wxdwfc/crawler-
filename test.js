@@ -7,6 +7,7 @@ var jsdom = require('jsdom').jsdom;
 
 var fs = require('fs');
 var jquery = fs.readFileSync("./jquery.js", "utf-8");
+var underscore   = require('underscore');
 
 var nodegrass = require("nodegrass");
 var WebSocketServer = require('ws').Server
@@ -31,7 +32,18 @@ var base_url   = "http://www.douyutv.com";
  * The catagories for the games.
 */
 var catagory =  [];
-var dataSet  =  {"name": "test_douyu","children":[]};
+var dataSet  =  {
+				"name": "test_douyu"
+   				,"children":[]
+   				,"url":base_url
+   				};
+
+/*
+ * compute the hotness change of between 2 crawaler.
+ */
+var origin = {};
+var next   = {};
+var finished = 0;
 
 
 var test_page = false;
@@ -43,12 +55,13 @@ if (!test_page) {
 
 	nodegrass.get(target_url,
 		function(data,status,headers) {
-			makeDom(data,root_callback);
+			make_dom(data,root_callback);
 			Start_server();
 
 			wss.on('connection', function(ws) {
     			ws.on('message', function(message) {
-	        		console.log("get something");
+//	        		console.log("get something");
+	        		getDataSet();
         			ws.send(JSON.stringify(dataSet));
 		   		});
 
@@ -69,7 +82,7 @@ if (!test_page) {
  * make a dom from a pure string flow
  */
 
-function makeDom(html, callback,params) {
+function make_dom(html, callback,params) {
   jsdom.env({
     html: html,
     src: [jquery],
@@ -109,6 +122,8 @@ function root_callback(errors,$,params) {
 
 function startExtract() {
 
+	finished = 0;
+
 	catagory.map(function(x) {
 
 		var name = x.name;
@@ -116,7 +131,7 @@ function startExtract() {
 
 		nodegrass.get(url,
 			function(data,status,headers) {
-			makeDom(data,extractData,[name]);
+			make_dom(data,extractData,[name]);
 
 		} ,"utf-8").on("error",
 		function(e) {
@@ -131,28 +146,40 @@ function startExtract() {
 function extractData(errors,$,params,window) {
 
 	var type = params[0];
-	var temp = {"name":type,"children":[]};
+	var temp = {};
 
 	var divs = $('.mes');
 
 	for(var i = 0;i < divs.length;++i){
 
-		var title = $(divs.get(i).children[0]).html();
+		var title = underscore($(divs.get(i).children[0]).html()).unescape();
 		var content = divs.get(i).children[1];
 
 		var views = $(content.children[0]).html();
-		var name  = $(content.children[1]).html();
+		var name  = underscore($(content.children[1]).html()).unescape();
 
-		temp["children"].push({"name":name,"hotness":convert(views),"title":title});
+		// i made a simple assumption that title will not collide
+		temp[title] = {
+			"hotness":convert(views),
+			"name":name,
+			"link":""
+			 };
 
 	}
-
+//	console.log(temp);
     var links = $(".list");
 	for(var i = 0;i < links.length;++i){
-
-		temp["children"][i].link = base_url + links.get(i).href.substr(7);
+		//console.log(links.get(i).title);
+		temp[links.get(i).title]["link"] = links.get(i).href.substr(7);
 	}
-	dataSet["children"].push(temp);
+
+	//dataSet["children"].push(temp);
+	next[type] = temp;
+	finished += 1;
+
+	if (finished == catagory.length) {
+		swap();
+	}
 
 }
 
@@ -177,14 +204,47 @@ function tick() {
 	nodegrass.get(target_url,
 
 		function(data,status,headers) {
-			makeDom(data,root_callback);
+			make_dom(data,root_callback);
 
 		} ,"utf-8").on("error",
 		function(e) {
 
 			console.log("Err: " + e.message);
 		}
-);
+	);
+
+}
+
+function getDataSet() {
+
+	dataSet.children = [];
+	for (var game in origin) {
+
+		var array = [];
+		for(var title in origin[game]) {
+			array.push(
+			{
+				"title":title,
+				"name" : origin[game][title].name,
+				"hotness": origin[game][title].hotness,
+				"link":origin[game][title].link
+			});
+		}
+		dataSet.children.push(
+		{
+			"name": game,
+			"children": array
+		});
+	}
+
+
+}
+
+function swap() {
+
+	console.log("swap");
+	origin = next;
+	next = {};
 
 }
 
