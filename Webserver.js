@@ -9,7 +9,7 @@ function Start_server(l_port){
     var server = new http.Server();
 
     server.listen(port);
-    console.log("Web server start listin: " + port);
+    console.log("Web server start listening: " + port);
 
     server.on("request",function(request,response){
         
