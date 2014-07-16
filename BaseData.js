@@ -5,11 +5,10 @@
  exports.BaseData = BaseData;
 
 
- function BaseData( title,type,name,hotness) {
+ function BaseData( title,name,hotness) {
 
  	this.title = title;
- 	this.type = type;
- 	this.name = name;
+ 	this.name  = name;
  	this.hotness = hotness;
  	
  }

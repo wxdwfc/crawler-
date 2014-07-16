@@ -13,7 +13,6 @@ var WebSocketServer = require('ws').Server
   , wss = new WebSocketServer({port: 8080});
 
 var Game = require("./_Game.js").Game;
-var BaseData = require("./BaseData.js").BaseData;
 
 var Start_server = require("./server.js").Start_server;
 
@@ -32,30 +31,38 @@ var base_url   = "http://www.douyutv.com";
  * The catagories for the games.
 */
 var catagory =  [];
-var dataSet  =  {};
+var dataSet  =  {"name": "test_douyu","children":[]};
 
+
+var test_page = false;
 
 /**
   * The starter function.
   */
-nodegrass.get(target_url,
-	function(data,status,headers) {
-		makeDom(data,root_callback);
-		Start_server();
+if (!test_page) {
 
-		wss.on('connection', function(ws) {
-    		ws.on('message', function(message) {
-        		console.log("get something");
-        		ws.send(JSON.stringify(dataSet));
-		   	});
+	nodegrass.get(target_url,
+		function(data,status,headers) {
+			makeDom(data,root_callback);
+			Start_server();
 
-	});
-	} ,"utf-8").on("error",
-	function(e) {
+			wss.on('connection', function(ws) {
+    			ws.on('message', function(message) {
+	        		console.log("get something");
+        			ws.send(JSON.stringify(dataSet));
+		   		});
 
-		console.log("Err: " + e.message);
-	}
-);
+			});
+		} ,"utf-8").on("error",
+		function(e) {
+
+			console.log("Err: " + e.message);
+		}
+	);
+} else {
+	// just testing the webpage view
+	Start_server();
+}
 
 
 /*
@@ -94,7 +101,6 @@ function root_callback(errors,$,params) {
 	for(var i = 0;i < ul.children.length - 1;++i){
 		var temp = ul.children[i].children[0];
 		catagory.push(new Game(temp.title,temp.href.substr(7)));
-		dataSet[temp.title] = [];
 	}
 	//console.log(catagory);
 	startExtract();
@@ -125,6 +131,7 @@ function startExtract() {
 function extractData(errors,$,params,window) {
 
 	var type = params[0];
+	var temp = {"name":type,"children":[]};
 
 	var divs = $('.mes');
 
@@ -135,11 +142,11 @@ function extractData(errors,$,params,window) {
 
 		var views = $(content.children[0]).html();
 		var name  = $(content.children[1]).html();
-		var d = new BaseData(title,type,name,convert(views));
 
-		dataSet[type].push(d);
+		temp["children"].push({"name":name,"hotness":convert(views),"title":title});
 
 	}
+	dataSet["children"].push(temp);
 
 }
 

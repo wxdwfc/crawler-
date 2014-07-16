@@ -1,17 +1,37 @@
-<html> 
-  <head>
-    <title> test</title>
-    <script type='text/javascript' src='http://localhost:8000/main.js'></script>
-  </head>
-  <body>
-    <p> This is the test.</p>
-    <script > 
-    window.onload = function() {
-    	init();
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
 
-    }
-    </script>
-  </body>
+circle {
+  fill: rgb(31, 119, 180);
+  fill-opacity: .25;
+  stroke: rgb(31, 119, 180);
+  stroke-width: 1px;
+}
+
+.leaf circle {
+  fill: #ff7f0e;
+  fill-opacity: 1;
+}
+
+text {
+  font: 10px sans-serif;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script type='text/javascript' src='http://localhost:8000/commuciate.js'></script>
+<script type='text/javascript' src='http://localhost:8000/display.js'></script>
+<script>
+  //main code
+  window.onload = function() {
+    init_scene();
+    init();
+  }
+
+
+</script>
+</body>
 </html>
-  
- 

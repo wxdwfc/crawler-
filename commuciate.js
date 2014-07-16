@@ -2,7 +2,7 @@
 
  var  wsServer = 'ws://localhost:8080';
  var websocket = null;
-
+ var dataSet = null;
 
  function tick(){
 
@@ -23,6 +23,9 @@
 
  function onMessage(evt) { 
  	console.log('Retrieved data from server: ' + evt.data); 
+ 	dataSet = JSON.parse(evt.data);
+ 	render(dataSet);
+
  }
 
  function onError(evt) { 
@@ -36,7 +39,7 @@
 	 websocket.onopen = function (evt) { onOpen(evt) }; 
 	 websocket.onclose = function (evt) { onClose(evt) }; 
 	 websocket.onmessage = function (evt) { onMessage(evt) }; 
-	 websocket.onerror = function (evt) { onError(evt) }; 
+	 websocket.onerror = function (evt) { onError(evt) };
 
  }
 

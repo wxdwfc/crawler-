@@ -28,20 +28,22 @@ function Start_server(){
         }
         fs.readFile(filename,function(err,content){
             if(err){
-            response.writeHead(404,{
-            "Content-Type":"text/plain;charset=UTF-8"});
+                console.log("There is error: " + err.message);
+                response.writeHead(404,{
+                "Content-Type":"text/plain;charset=UTF-8"});
 
-            response.write(err.message);
-            response.end();
-        }
-        else{
-            console.log("write done");
-            response.writeHead(200,{
-            "Content-Type":type});
-            response.write(content);
-            response.end();
+                response.write(err.message);
+                response.end();
+            }
+            else{
+
+                response.writeHead(200,{
+                "Content-Type":type});
+                response.write(content);
+                response.end();
                    
-        }   
+            }   
+
         });
     });
 }
