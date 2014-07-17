@@ -33,7 +33,7 @@
  }
 
 
- function init() {
+ function init_socket() {
 
  	 websocket = new WebSocket(wsServer); 
 	 websocket.onopen = function (evt) { onOpen(evt) }; 
@@ -41,5 +41,11 @@
 	 websocket.onmessage = function (evt) { onMessage(evt) }; 
 	 websocket.onerror = function (evt) { onError(evt) };
 
+ }
+ 
+ function close_socket() {
+
+ 	console.log("communicate done");
+ 	websocket.close();
  }
 

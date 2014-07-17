@@ -9,7 +9,7 @@ var fs = require('fs');
 var jquery = fs.readFileSync("./jquery.js", "utf-8");
 var underscore   = require('underscore');
 
-var nodegrass = require("nodegrass");
+var nodegrass = require("../nodegrass");
 var WebSocketServer = require('ws').Server
   , wss = new WebSocketServer({port: 8080});
 
@@ -46,8 +46,15 @@ var next   = {};
 var finished = 0;
 
 
+var interval = 10000; //10 seconds
+var repeat   = false;
+
 var test_page = false;
 
+//add proxies
+nodegrass.addProxy("cache.sjtu.edu.cn",8080);
+nodegrass.addProxy("118.67.124.120",80);
+nodegrass.proxy.shift();
 /**
   * The starter function.
   */
@@ -63,6 +70,7 @@ if (!test_page) {
 //	        		console.log("get something");
 	        		getDataSet();
         			ws.send(JSON.stringify(dataSet));
+        			//ws.close();
 		   		});
 
 			});
@@ -109,11 +117,20 @@ function root_callback(errors,$,params) {
 
 
 	var games = $('.tagCont')[0];
-	var ul = games.children[0];
+	try{
+		var ul = games.children[0];
+	}catch(err) {
+		console.log("root_callback error: " + err.message);
+		next = {};
+		if(repeat)
+			setTimeout(tick ,interval);
+		return;
+	}
 
 	for(var i = 0;i < ul.children.length - 1;++i){
 		var temp = ul.children[i].children[0];
 		catagory.push(new Game(temp.title,temp.href.substr(7)));
+
 	}
 	//console.log(catagory);
 	startExtract();
@@ -190,7 +207,7 @@ function convert(s){
 
 	if(s[s.length - 1] == '万'){
 
-		return parseFloat(s) * 10000;
+		return parseFloat(s) * 20000;
 	} else {
 		return parseInt(s);
 	}
@@ -201,6 +218,7 @@ function convert(s){
  * The tick function will be called at a given interval to flush the data.
  */
 function tick() {
+	console.log("tick");
 	nodegrass.get(target_url,
 
 		function(data,status,headers) {
@@ -245,6 +263,9 @@ function swap() {
 	console.log("swap");
 	origin = next;
 	next = {};
+
+	if(repeat)
+		setTimeout(tick ,interval);
 
 }
 

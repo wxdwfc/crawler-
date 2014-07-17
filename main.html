@@ -39,7 +39,13 @@ text {
   //main code
   window.onload = function() {
     init_scene();
-    init();
+    init_socket();
+
+  }
+
+  window.onbeforeunload = function () {
+
+    close_socket();
   }
 
 
