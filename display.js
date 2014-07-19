@@ -31,30 +31,8 @@ function init_scene() {
 	  .append("g")
       .attr("transform", "translate(2,2)");	
     d3.select(self.frameElement).style("height", diameter + "px");
-}
 
-function render(root) {
-
-	  base_url = root["url"];
-
-	  var node = svg.datum(root).selectAll(".node")
-      	.data(pack.nodes)
-	    .enter().append("g")
-     	.attr("class", function(d) { return d.children ? "node" : "leaf node"; })
-    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-	  node.append("title")
-        .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.hotness)); });
-
-	  node.append("circle")
-     	  .attr("r", function(d) { return d.r; });
-
-	  node.filter(function(d) { return !d.children; }).append("text")
-    	  .attr("dy", ".3em")
-	      .style("text-anchor", "middle")
-    	  .text(function(d) { return d.name.substring(0, d.r / 3); });
-
-     
+    
    	  info = svg.append('g').attr('class', 'info');
  	  
       rect = info.append('rect')
@@ -82,6 +60,29 @@ function render(root) {
 	  .attr('x', 10)
 	  .attr('y', 60)
 	  .text('');
+}
+
+function render(root) {
+
+	  base_url = root["url"];
+
+	  var node = svg.datum(root).selectAll(".node")
+      	.data(pack.nodes)
+	    .enter().append("g")
+     	.attr("class", function(d) { return d.children ? "node" : "leaf node"; })
+    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+	  node.append("title")
+        .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.hotness)); });
+
+	  node.append("circle")
+     	  .attr("r", function(d) { return d.r; });
+
+	  node.filter(function(d) { return !d.children; }).append("text")
+    	  .attr("dy", ".3em")
+	      .style("text-anchor", "middle")
+    	  .text(function(d) { return d.name.substring(0, d.r / 3); });
+
 
 
 
@@ -138,6 +139,6 @@ function remove(){
 	texts.exit().remove();
 
 	var info = svg.selectAll('.info').data([]);
-	tips.exit().remove();
+	info.exit().remove();
 
 }

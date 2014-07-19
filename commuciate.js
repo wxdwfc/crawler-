@@ -4,8 +4,13 @@
  var websocket = null;
  var dataSet = null;
 
- function tick(){
+// 2 minutes interval
 
+// var interval = 2 * 60000;
+ var interval = 10 * 1000;
+
+ function tick(){
+ 	console.log("tick");
  	if(websocket != null){
  		websocket.send("hello");
  	}
@@ -22,9 +27,12 @@
  } 
 
  function onMessage(evt) { 
- 	console.log('Retrieved data from server: ' + evt.data); 
+// 	console.log('Retrieved data from server: ' + evt.data); 
+//	remove();
  	dataSet = JSON.parse(evt.data);
  	render(dataSet);
+
+ 	//setTimeout(tick,interval);
 
  }
 

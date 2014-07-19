@@ -46,15 +46,14 @@ var next   = {};
 var finished = 0;
 
 
-var interval = 10000; //10 seconds
+var interval = 60000; //1 minutes
 var repeat   = false;
 
 var test_page = false;
 
 //add proxies
-nodegrass.addProxy("cache.sjtu.edu.cn",8080);
-nodegrass.addProxy("118.67.124.120",80);
-nodegrass.proxy.shift();
+//nodegrass.addProxy("cache.sjtu.edu.cn",8080);
+//nodegrass.addProxy("118.67.124.120",80);
 /**
   * The starter function.
   */
@@ -62,6 +61,7 @@ if (!test_page) {
 
 	nodegrass.get(target_url,
 		function(data,status,headers) {
+			nodegrass.change = false;
 			make_dom(data,root_callback);
 			Start_server();
 
@@ -115,7 +115,7 @@ function make_dom(html, callback,params) {
  */
 function root_callback(errors,$,params) {
 
-
+	console.log("extract root");
 	var games = $('.tagCont')[0];
 	try{
 		var ul = games.children[0];
@@ -220,8 +220,8 @@ function convert(s){
 function tick() {
 	console.log("tick");
 	nodegrass.get(target_url,
-
 		function(data,status,headers) {
+			nodegrass.change = false;
 			make_dom(data,root_callback);
 
 		} ,"utf-8").on("error",
@@ -264,8 +264,10 @@ function swap() {
 	origin = next;
 	next = {};
 
-	if(repeat)
+	if(repeat){
+		nodegrass.change = true;
 		setTimeout(tick ,interval);
+	}
 
 }
 
