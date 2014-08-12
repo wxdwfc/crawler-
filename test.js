@@ -184,11 +184,12 @@ function extractData(errors,$,params,window) {
 
 	}
 //	console.log(temp);
+	/*
     var links = $(".list");
 	for(var i = 0;i < links.length;++i){
 		//console.log(links.get(i).title);
 		temp[links.get(i).title]["link"] = links.get(i).href.substr(7);
-	}
+	}*/
 
 	//dataSet["children"].push(temp);
 	next[type] = temp;
