@@ -45,9 +45,11 @@ var origin = {};
 var next   = {};
 var finished = 0;
 
+var second = 1000;
+var minute = second * 60;
 
-var interval = 60000; //1 minutes
-var repeat   = false;
+var interval = 5 * minute;
+var repeat   = true;
 
 var test_page = false;
 
@@ -261,7 +263,8 @@ function getDataSet() {
 
 function swap() {
 
-	console.log("swap");
+	var date = new Date();
+	console.log("at " + date + "  swap");
 	origin = next;
 	next = {};
 
